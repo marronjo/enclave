@@ -1,34 +1,38 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
+import { L2Resolver } from "./L2Resolver.sol";
+
 contract L2Registry {
+
+    L2Resolver defaultResolver;
 
     struct Record {
         address owner;
         address resolver;
     }
 
-    mapping(string => Record) records;
+    mapping(string id => Record) records;
 
     constructor() {
-        records["me.enclave.eth"] = Record(address(0x1234), address(0x5678));
+        defaultResolver = new L2Resolver(address(this));
+        records["me.enclave.eth"] = Record(address(msg.sender), address(defaultResolver));
     }
 
-    function setRecord(string calldata name, address resolver, address owner) public {
-        records[name].resolver = resolver;
-        records[name].owner = owner;
+    function setRecord(string calldata id,  address owner) public {
+        records[id].resolver = address(defaultResolver);
+        records[id].owner = owner;
     }
 
-    function getRecord(string calldata name) public view returns (Record memory) {
-        return records[name];
+    function getRecord(string calldata id) public view returns (Record memory) {
+        return records[id];
     }
 
-    function getOwner(string calldata name) public view returns (address) {
-        return records[name].owner;
+    function getOwner(string calldata id) public view returns (address) {
+        return records[id].owner;
     }
 
-    function getResolver(string calldata name) public view returns (address) {
-        return records[name].resolver;
+    function getResolver(string calldata id) public view returns (address) {
+        return records[id].resolver;
     }
-
 }
