@@ -9,10 +9,6 @@ import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 // make contract into NFT ?
 // encrypted records in string format
 
-// frontend / demo stuff
-// 1 screen -> create subname on L2 ... add emcryoted data to it
-// 1 screen -> inout box, type in ens name, resolve data through gateway from mainnet
-
 /*
     owner can read / write / assign new delegates
     delegate can read / assign new delegates
@@ -29,11 +25,11 @@ contract L2Resolver is Permissioned {
 
     L2Registry registry;
 
-    mapping(string id => mapping(uint256 coinType => bytes addr)) addrRecords;    // hold users addresses for given ens domain
+    mapping(string id => mapping(uint256 coinType => bytes addr)) public addrRecords;    // hold users addresses for given ens domain
 
     mapping(string id => mapping(string key => string value)) public textRecords; // need to store encrypted values here in string, conform to ens interface
 
-    mapping(string id => mapping(address delegate => bool authorized)) delegates; // store users delegate permissions
+    mapping(string id => mapping(address delegate => bool authorized)) public delegates; // store users delegate permissions
 
     /**
      * ensure reader is owner or has delegate permissions
@@ -66,22 +62,22 @@ contract L2Resolver is Permissioned {
     }
 
     constructor(address _registry) {
-        addrRecords["me.enclave.eth"][0] = abi.encode(0x51);
-        textRecords["me.enclave.eth"]["secret"] = uint256(10).toString();
+        addrRecords["app.myenclave.eth"][0] = abi.encode(0x51);
+        textRecords["app.myenclave.eth"]["secret"] = uint256(10).toString();
         registry = L2Registry(_registry);
     }
 
     /**
      * Add new user address to mapping
      */
-    function setAddrRecord(string calldata id, uint256 coinType, bytes calldata addr) authorizedWrite(id) public {
+    function setAddrRecord(string calldata id, uint256 coinType, bytes calldata addr) public {
         addrRecords[id][coinType] = addr;
     }
 
     /**
      * Add new text entry into mapping
      */
-    function setTextRecord(string calldata id, string calldata key, string calldata value) authorizedWrite(id) public {
+    function setTextRecord(string calldata id, string calldata key, string calldata value) public {
         textRecords[id][key] = value;
     }
 
@@ -142,21 +138,21 @@ contract L2Resolver is Permissioned {
     /**
      * Get address record, must be owner or delegate
      */
-    function getAddrRecord(string calldata id, uint256 coinType) authorizedRead(id) public view returns(bytes memory) {
+    function getAddrRecord(string calldata id, uint256 coinType) public view returns(bytes memory) {
         return addrRecords[id][coinType];
     }
 
     /**
      * Get plain text record, must be owner or delegate
      */
-    function getTextRecord(string calldata id, string calldata key) authorizedRead(id) public view returns(string memory) {
+    function getTextRecord(string calldata id, string calldata key) public view returns(string memory) {
         return textRecords[id][key];
     }
 
     /**
      * Get encrypted text record, must be owner or delegate
      */
-    function getEncTextRecord(Permission calldata permission, string calldata id, string calldata key) authorizedRead(id) public view returns(string memory) {
+    function getEncTextRecord(Permission calldata permission, string calldata id, string calldata key) public view returns(string memory) {
         string memory rec = textRecords[id][key];
         uint256 x = toUint256(rec);
         return FHE.sealoutput(euint256.wrap(x), permission.publicKey);

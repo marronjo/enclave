@@ -25,7 +25,7 @@ contract L2ResolverTest is Test, FheEnabled {
 
     uint256 defaultCoinType = 0;
     bytes defaultAddress = abi.encode(100);
-    string testEnsDomain = "me.test.eth";
+    string testEnsDomain = "app.myenclave.eth";
     string key = "secret";
 
     Permission permission;
@@ -80,7 +80,7 @@ contract L2ResolverTest is Test, FheEnabled {
     function testGetEnc256TextRecord_Success() external {
         vm.startPrank(user1);
 
-        string memory encTextRecord = resolver.getEncTextRecord(permission, "me.enclave.eth", "secret");
+        string memory encTextRecord = resolver.getEncTextRecord(permission, testEnsDomain, key);
 
         uint256 decryptedValue = unseal(address(resolver), encTextRecord);
         assertEq(decryptedValue, 10);

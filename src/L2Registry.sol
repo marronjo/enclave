@@ -17,7 +17,7 @@ contract L2Registry is Ownable {
 
     constructor() Ownable(msg.sender) {
         defaultResolver = new L2Resolver(address(this));
-        records["me.enclave.eth"] = Record(address(msg.sender), address(defaultResolver));
+        records["app.myenclave.eth"] = Record(address(msg.sender), address(defaultResolver));
     }
 
     function setRecord(string calldata id,  address owner) public {

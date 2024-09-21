@@ -17,7 +17,7 @@ contract L2RegistryTest is Test {
     }
 
     function testGetDefaultRecord() external view {
-        L2Registry.Record memory record = registry.getRecord("me.enclave.eth");
+        L2Registry.Record memory record = registry.getRecord("app.myenclave.eth");
         assertEq(record.owner, user);
     }
 }

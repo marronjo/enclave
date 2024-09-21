@@ -60,8 +60,8 @@ contract SimpleResolver {
     }
 
     constructor(address _registry) {
-        addrRecords["me.enclave.eth"][0] = abi.encode(0x51);
-        textRecords["me.enclave.eth"]["secret"] = uint256(10).toString();
+        addrRecords["app.myenclave.eth"][0] = abi.encode(0x51);
+        textRecords["app.myenclave.eth"]["secret"] = uint256(10).toString();
         registry = SimpleRegistry(_registry);
     }
 
@@ -82,14 +82,14 @@ contract SimpleResolver {
     /**
      * Get address record, must be owner or delegate
      */
-    function getAddrRecord(string calldata id, uint256 coinType) authorizedRead(id) public view returns(bytes memory) {
+    function getAddrRecord(string calldata id, uint256 coinType) public view returns(bytes memory) {
         return addrRecords[id][coinType];
     }
 
     /**
      * Get plain text record, must be owner or delegate
      */
-    function getTextRecord(string calldata id, string calldata key) authorizedRead(id) public view returns(string memory) {
+    function getTextRecord(string calldata id, string calldata key) public view returns(string memory) {
         return textRecords[id][key];
     }
 
