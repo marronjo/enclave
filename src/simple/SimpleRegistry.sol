@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import { L2Resolver } from "./L2Resolver.sol";
+import { SimpleResolver } from "./SimpleResolver.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 
-contract L2Registry is Ownable {
+contract SimpleRegistry is Ownable {
 
-    L2Resolver defaultResolver;
+    SimpleResolver defaultResolver;
 
     struct Record {
         address owner;
@@ -16,7 +16,7 @@ contract L2Registry is Ownable {
     mapping(string id => Record) records;
 
     constructor() Ownable(msg.sender) {
-        defaultResolver = new L2Resolver(address(this));
+        defaultResolver = new SimpleResolver(address(this));
         records["me.enclave.eth"] = Record(address(msg.sender), address(defaultResolver));
     }
 

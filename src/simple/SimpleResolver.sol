@@ -1,23 +1,17 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import { Permissioned, Permission } from "@fhenixprotocol/contracts/access/Permissioned.sol";
-import { FHE, euint256, inEuint256, euint128, inEuint128, euint64, inEuint64, euint32, inEuint32, euint16, inEuint16, euint8, inEuint8 } from "@fhenixprotocol/contracts/FHE.sol";
-import { L2Registry } from "./L2Registry.sol";
+import { SimpleRegistry } from "./SimpleRegistry.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 
 // make contract into NFT ?
 // encrypted records in string format
 
-// frontend / demo stuff
-// 1 screen -> create subname on L2 ... add emcryoted data to it
-// 1 screen -> inout box, type in ens name, resolve data through gateway from mainnet
-
 /*
     owner can read / write / assign new delegates
     delegate can read / assign new delegates
 */
-contract L2Resolver is Permissioned {
+contract SimpleResolver {
 
     error L2Registry__UnauthorizedRead(address user);
     error L2Registry__UnauthorizedWrite(address user);
@@ -27,7 +21,7 @@ contract L2Resolver is Permissioned {
     using Strings for uint256;      // OZ convert uint256 to string
     //using StringUtils for string;   // my library convert string to uint256
 
-    L2Registry registry;
+    SimpleRegistry registry;
 
     mapping(string id => mapping(uint256 coinType => bytes addr)) addrRecords;    // hold users addresses for given ens domain
 
@@ -68,7 +62,7 @@ contract L2Resolver is Permissioned {
     constructor(address _registry) {
         addrRecords["me.enclave.eth"][0] = abi.encode(0x51);
         textRecords["me.enclave.eth"]["secret"] = uint256(10).toString();
-        registry = L2Registry(_registry);
+        registry = SimpleRegistry(_registry);
     }
 
     /**
@@ -86,60 +80,6 @@ contract L2Resolver is Permissioned {
     }
 
     /**
-     * Add new encrypted entry into text mapping (256 bit)
-     */
-    function setEuint256TextRecord(string calldata id, string calldata key, inEuint256 calldata value) authorizedWrite(id) public {
-        euint256 e = FHE.asEuint256(value);
-        uint256 u = euint256.unwrap(e);
-        textRecords[id][key] = u.toString();
-    }
-
-    /**
-     * Add new encrypted entry into text mapping (128 bit)
-     */
-    function setEuint128TextRecord(string calldata id, string calldata key, inEuint128 calldata value) authorizedWrite(id) public {
-        euint128 e = FHE.asEuint128(value);
-        uint256 u = euint128.unwrap(e);
-        textRecords[id][key] = u.toString();
-    }
-
-    /**
-     * Add new encrypted entry into text mapping (64 bit)
-     */
-    function setEuint64TextRecord(string calldata id, string calldata key, inEuint64 calldata value) authorizedWrite(id) public {
-        euint64 e = FHE.asEuint64(value);
-        uint256 u = euint64.unwrap(e);
-        textRecords[id][key] = u.toString();
-    }
-
-    /**
-     * Add new encrypted entry into text mapping (32 bit)
-     */
-    function setEuint32TextRecord(string calldata id, string calldata key, inEuint32 calldata value) authorizedWrite(id) public {
-        euint32 e = FHE.asEuint32(value);
-        uint256 u = euint32.unwrap(e);
-        textRecords[id][key] = u.toString();
-    }
-
-    /**
-     * Add new encrypted entry into text mapping (16 bit)
-     */
-    function setEuint16TextRecord(string calldata id, string calldata key, inEuint16 calldata value) authorizedWrite(id) public {
-        euint16 e = FHE.asEuint16(value);
-        uint256 u = euint16.unwrap(e);
-        textRecords[id][key] = u.toString();
-    }
-
-    /**
-     * Add new encrypted entry into text mapping (8 bit)
-     */
-    function setEuint8TextRecord(string calldata id, string calldata key, inEuint8 calldata value) authorizedWrite(id) public {
-        euint8 e = FHE.asEuint8(value);
-        uint256 u = euint8.unwrap(e);
-        textRecords[id][key] = u.toString();
-    }
-
-    /**
      * Get address record, must be owner or delegate
      */
     function getAddrRecord(string calldata id, uint256 coinType) authorizedRead(id) public view returns(bytes memory) {
@@ -151,15 +91,6 @@ contract L2Resolver is Permissioned {
      */
     function getTextRecord(string calldata id, string calldata key) authorizedRead(id) public view returns(string memory) {
         return textRecords[id][key];
-    }
-
-    /**
-     * Get encrypted text record, must be owner or delegate
-     */
-    function getEncTextRecord(Permission calldata permission, string calldata id, string calldata key) authorizedRead(id) public view returns(string memory) {
-        string memory rec = textRecords[id][key];
-        uint256 x = toUint256(rec);
-        return FHE.sealoutput(euint256.wrap(x), permission.publicKey);
     }
 
     /**
@@ -188,13 +119,4 @@ contract L2Resolver is Permissioned {
     function checkOwnerOrDelegate(string calldata id) private view returns(bool){
         return registry.getRegistryOwner() == msg.sender || delegates[id][msg.sender] == true;
     }
-
-    function toUint256(string memory str) private pure returns (uint256) {
-        uint256 result = 0;
-        for (uint256 i = 0; i < bytes(str).length; i++) {
-            uint256 digit = uint256(uint8(bytes(str)[i]) - 48);
-            result = result * 10 + digit;
-        }
-        return result;
-    }   
 }
