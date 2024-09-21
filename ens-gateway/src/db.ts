@@ -3,12 +3,6 @@ import { EMPTY_CONTENT_HASH, ETH_COIN_TYPE, ZERO_ADDRESS } from './utils';
 import ethers from'ethers';
 import { abi } from './L2Resolver.json';
 
-// interface NameData {
-//   addresses?: { [coinType: number]: string };
-//   text?: { [key: string]: string };
-//   contenthash?: string;
-// }
-
 export const database: Database = {
   async addr(name, coinType) {
     // If the request is for some non-ETH address, return 0x0
@@ -55,13 +49,11 @@ async function fetchAddrFromL2(name: string, coinType: any): Promise<string> {
     const response = await resolver.getAddrRecord(name, coinType);
 
     console.log('response : ', name, response);
-    // console.log('json : ', response.json());
-
-    // const data = (await response.json()) as NameData;
+   
     return response;
   } catch (err) {
     console.error('Error fetching name from L2', err);
-    return '';
+    return 'nothing to see here!';
   }
 }
 
@@ -79,12 +71,11 @@ async function fetchTextFromL2(name: string, key: string): Promise<string> {
     const response = await resolver.getTextRecord(name, key);
 
     console.log('response : ', name, response);
-    //console.log('json : ', response.json());
 
     return response;
   } catch (err) {
     console.error('Error fetching text from L2', err);
-    return '';
+    return 'nothing to see here!';
   }
 }
 
