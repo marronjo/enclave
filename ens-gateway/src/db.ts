@@ -18,7 +18,7 @@ export const database: Database = {
 
     // If the request if for an ETH address, get that from your API (or database directly or whatever)
     try {
-      const addr = await fetchAddrFromL2(name) || ZERO_ADDRESS;
+      const addr = await fetchAddrFromL2(name, coinType) || ZERO_ADDRESS;
       return { addr, ttl: 1000 };
     } catch (error) {
       console.error('Error resolving addr', error);
@@ -41,10 +41,10 @@ export const database: Database = {
   },
 };
 
-async function fetchAddrFromL2(name: string): Promise<string> {
+async function fetchAddrFromL2(name: string, coinType: any): Promise<string> {
   try {
     var provider = new ethers.providers.JsonRpcProvider(process.env.RPC_URL);
-    const address = process.env.RESOLVER_ADDRESS as string; //'0x5fbdb2315678afecb367f032d93f642f64180aa3';
+    const address = process.env.RESOLVER_ADDRESS as string;
 
     const resolver = new ethers.Contract(
         address,
@@ -52,7 +52,7 @@ async function fetchAddrFromL2(name: string): Promise<string> {
         provider
     );
 
-    const response = await resolver.getAddrRecord(name, 0);
+    const response = await resolver.getAddrRecord(name, coinType);
 
     console.log('response : ', name, response);
     // console.log('json : ', response.json());
@@ -68,7 +68,7 @@ async function fetchAddrFromL2(name: string): Promise<string> {
 async function fetchTextFromL2(name: string, key: string): Promise<string> {
   try {
     var provider = new ethers.providers.JsonRpcProvider(process.env.RPC_URL);
-    const address = process.env.RESOLVER_ADDRESS as string; //'0x5fbdb2315678afecb367f032d93f642f64180aa3';
+    const address = process.env.RESOLVER_ADDRESS as string;
 
     const resolver = new ethers.Contract(
         address,
