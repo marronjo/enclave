@@ -61,7 +61,7 @@ async function fetchAddrFromL2(name: string, coinType: any): Promise<string> {
     return response;
   } catch (err) {
     console.error('Error fetching name from L2', err);
-    return 'error';
+    return '';
   }
 }
 
@@ -84,7 +84,7 @@ async function fetchTextFromL2(name: string, key: string): Promise<string> {
     return response;
   } catch (err) {
     console.error('Error fetching text from L2', err);
-    return 'error';
+    return '';
   }
 }
 
